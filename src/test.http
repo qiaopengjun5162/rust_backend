@@ -8,10 +8,10 @@ Accept-Charset: utf-8
 Content-Type: application/json
 
 # {"pizza_name": "Triple Cheese Pizza"}
-{"pizza_name": "Meat Supreme Pizza"}
+{"pizza_name": "Sushi Chicken Pizza"}
 
 ### updatepizza
-PATCH http://127.0.0.1:8080/updatepizza/123456789
+PATCH http://127.0.0.1:8080/updatepizza/cb01115a9f144ce1840b761a5b8f08db
 
 ### surrealdb
 GET http://localhost:8000/version

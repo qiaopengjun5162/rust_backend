@@ -16,20 +16,19 @@ mod error;
 mod models;
 
 #[get("/pizzas")]
-// async fn get_pizzas(db: Data<Database>) -> impl Responder {
 async fn get_pizzas(db: Data<Database>) -> Result<Json<Vec<Pizza>>, PizzaError> {
     let pizzas = db.get_all_pizzas().await;
     match pizzas {
-        // Some(found_pizzas) => HttpResponse::Ok().body(format!("{:#?}", found_pizzas)),
         Some(found_pizzas) => Ok(Json(found_pizzas)),
         None => Err(PizzaError::NoPizzasFound),
-        // None => HttpResponse::Ok().body("No pizzas found!"),
     }
-    // HttpResponse::Ok().body("Pizzas available!")
 }
 
 #[post("/buypizza")]
-async fn buy_pizza(body: Json<BuyPizzaRequest>, db: Data<Database>) -> impl Responder {
+async fn buy_pizza(
+    body: Json<BuyPizzaRequest>,
+    db: Data<Database>,
+) -> Result<Json<Pizza>, PizzaError> {
     let is_valid = body.validate();
     match is_valid {
         Ok(_) => {
@@ -41,20 +40,26 @@ async fn buy_pizza(body: Json<BuyPizzaRequest>, db: Data<Database>) -> impl Resp
                 .add_pizza(Pizza::new(String::from(new_uuid), pizza_name))
                 .await;
             match new_pizza {
-                Some(created) => {
-                    HttpResponse::Ok().body(format!("Created new pizza: {:#?}", created))
-                }
-                None => HttpResponse::BadRequest().body("Could not create pizza!"),
+                Some(created) => Ok(Json(created)),
+
+                None => Err(PizzaError::PizzaCreationFailure),
             }
         }
-        Err(e) => HttpResponse::BadRequest().body(format!("Pizza name required! Err: {}", e)),
+        Err(_) => Err(PizzaError::PizzaCreationFailure),
     }
 }
 
 #[patch("/updatepizza/{uuid}")]
-async fn update_pizza(update_pizza_url: Path<UpdatePizzaURL>) -> impl Responder {
+async fn update_pizza(
+    update_pizza_url: Path<UpdatePizzaURL>,
+    db: Data<Database>,
+) -> Result<Json<Pizza>, PizzaError> {
     let uuid = update_pizza_url.into_inner().uuid;
-    HttpResponse::Ok().body(format!("Updating the pizza with {uuid}!"))
+    let update_result = db.update_pizza(uuid).await;
+    match update_result {
+        Some(updated) => Ok(Json(updated)),
+        None => Err(PizzaError::NoSuchPizzaFound),
+    }
 }
 
 #[actix_web::main]

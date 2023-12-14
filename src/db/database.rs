@@ -48,4 +48,31 @@ impl Database {
             Err(_) => None,
         }
     }
+
+    pub async fn update_pizza(&self, uuid: String) -> Option<Pizza> {
+        let find_pizza: Result<Option<Pizza>, Error> = self.client.select(("pizza", &uuid)).await;
+        match find_pizza {
+            Ok(found) => {
+                match found {
+                    Some(_found_pizza) => {
+                        // and if found the pizza
+                        let updated_pizza: Result<Option<Pizza>, Error> = self
+                            .client
+                            .update(("pizza", &uuid))
+                            .merge(Pizza {
+                                uuid,
+                                pizza_name: String::from("sold"),
+                            })
+                            .await;
+                        match updated_pizza {
+                            Ok(updated_pizza) => updated_pizza,
+                            Err(_) => None,
+                        }
+                    }
+                    None => None,
+                }
+            }
+            Err(_) => None,
+        }
+    }
 }
