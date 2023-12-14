@@ -2,7 +2,7 @@ use crate::db::{pizza_data_trait::PizzaDataTrait, Database};
 use actix_web::{
     get, patch, post,
     web::{Data, Json, Path},
-    App, HttpResponse, HttpServer, Responder,
+    App, HttpServer,
 };
 use uuid::Uuid;
 use validator::Validate;
@@ -18,7 +18,6 @@ mod models;
 #[get("/pizzas")]
 async fn get_pizzas(db: Data<Database>) -> Result<Json<Vec<Pizza>>, PizzaError> {
     let pizzas = Database::get_all_pizzas(&db).await;
-    // let pizzas = db.get_all_pizzas().await;
     match pizzas {
         Some(found_pizzas) => Ok(Json(found_pizzas)),
         None => Err(PizzaError::NoPizzasFound),
@@ -37,9 +36,6 @@ async fn buy_pizza(
             let mut buffer = Uuid::encode_buffer();
             let new_uuid = Uuid::new_v4().simple().encode_lower(&mut buffer);
 
-            // let new_pizza = db
-            //     .add_pizza(Pizza::new(String::from(new_uuid), pizza_name))
-            //     .await;
             let new_pizza =
                 Database::add_pizza(&db, Pizza::new(String::from(new_uuid), pizza_name)).await;
             match new_pizza {
@@ -59,7 +55,6 @@ async fn update_pizza(
 ) -> Result<Json<Pizza>, PizzaError> {
     let uuid = update_pizza_url.into_inner().uuid;
     let update_result = Database::update_pizza(&db, uuid).await;
-    // let update_result = db.update_pizza(uuid).await;
     match update_result {
         Some(updated) => Ok(Json(updated)),
         None => Err(PizzaError::NoSuchPizzaFound),

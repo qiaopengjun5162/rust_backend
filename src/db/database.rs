@@ -13,14 +13,18 @@ pub struct Database {
 
 impl Database {
     pub async fn init() -> Result<Self, Error> {
+        // 创建一个客户端
         let client = Surreal::new::<Ws>("127.0.0.1:8000").await?;
+        // 使用root用户登录
         client
             .signin(Root {
                 username: "root",
                 password: "root",
             })
             .await?;
+        // 使用ns和db
         client.use_ns("surreal").use_db("pizzas").await.unwrap();
+        // 返回一个Database实例
         Ok(Database {
             client,
             name_space: "surreal".to_string(),
