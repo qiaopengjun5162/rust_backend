@@ -1,0 +1,17 @@
+### pizzas
+GET http://127.0.0.1:8080/pizzas
+
+
+### Buy pizza
+POST http://127.0.0.1:8080/buypizza
+Accept-Charset: utf-8
+Content-Type: application/json
+
+# {"pizza_name": "Triple Cheese Pizza"}
+{"pizza_name": "Meat Supreme Pizza"}
+
+### updatepizza
+PATCH http://127.0.0.1:8080/updatepizza/123456789
+
+### surrealdb
+GET http://localhost:8000/version
